@@ -1,7 +1,6 @@
-import * as actionTypes from './actionTypes';
 import axios from 'axios';
-import config from '../../dev';
-import Logout from '../../containers/Auth/Logout/Logout';
+
+import * as actionTypes from './actionTypes';
 
 export const authStart = () => {
   return {
@@ -26,9 +25,11 @@ export const authFail = (error) => {
 
 export const logout = () => {
   localStorage.removeItem('token');
-  localStorage.removeItem('expirationTime');
+  localStorage.removeItem('expirationDate');
   localStorage.removeItem('userId');
-  return { type: actionTypes.AUTH_LOGOUT };
+  return {
+    type: actionTypes.AUTH_LOGOUT,
+  };
 };
 
 export const checkAuthTimeout = (expirationTime) => {
@@ -47,10 +48,11 @@ export const auth = (email, password, isSignup) => {
       password: password,
       returnSecureToken: true,
     };
-
-    let url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${config.firebaseApi}`;
+    let url =
+      'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyDs4U5kg-MY0WVQxUMyqFmFhRtgu0Q8I1g';
     if (!isSignup) {
-      url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${config.firebaseApi}`;
+      url =
+        'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyDs4U5kg-MY0WVQxUMyqFmFhRtgu0Q8I1g';
     }
     axios
       .post(url, authData)
@@ -59,7 +61,7 @@ export const auth = (email, password, isSignup) => {
           new Date().getTime() + response.data.expiresIn * 1000
         );
         localStorage.setItem('token', response.data.idToken);
-        localStorage.setItem('expirationTime', expirationDate);
+        localStorage.setItem('expirationDate', expirationDate);
         localStorage.setItem('userId', response.data.localId);
         dispatch(authSuccess(response.data.idToken, response.data.localId));
         dispatch(checkAuthTimeout(response.data.expiresIn));
@@ -83,15 +85,15 @@ export const authCheckState = () => {
     if (!token) {
       dispatch(logout());
     } else {
-      const expirationTime = new Date(localStorage.getItem('expirationTime'));
-      if (expirationTime <= new Date()) {
-        dispatch(Logout());
+      const expirationDate = new Date(localStorage.getItem('expirationDate'));
+      if (expirationDate <= new Date()) {
+        dispatch(logout());
       } else {
         const userId = localStorage.getItem('userId');
         dispatch(authSuccess(token, userId));
         dispatch(
           checkAuthTimeout(
-            (expirationTime.getTime() - new Date().getTime()) / 1000
+            (expirationDate.getTime() - new Date().getTime()) / 1000
           )
         );
       }
