@@ -1,4 +1,5 @@
 import axios from 'axios';
+import key from '../../dev';
 
 import * as actionTypes from './actionTypes';
 
@@ -48,11 +49,9 @@ export const auth = (email, password, isSignup) => {
       password: password,
       returnSecureToken: true,
     };
-    let url =
-      'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyDs4U5kg-MY0WVQxUMyqFmFhRtgu0Q8I1g';
+    let url = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${key.firebaseApi}`;
     if (!isSignup) {
-      url =
-        'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyDs4U5kg-MY0WVQxUMyqFmFhRtgu0Q8I1g';
+      url = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=${key.firebaseApi}`;
     }
     axios
       .post(url, authData)
